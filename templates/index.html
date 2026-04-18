@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>讯飞录音转写 Demo</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 2rem auto; max-width: 920px; padding: 0 1rem; }
+      .card { border: 1px solid #ddd; border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1rem; }
+      label { display:block; margin-top: .8rem; font-weight: 600; }
+      input, select { width: 100%; padding: .55rem; margin-top: .35rem; }
+      button { margin-top: 1rem; padding: .65rem 1rem; border: 0; border-radius: 8px; background: #1a73e8; color: #fff; cursor: pointer; }
+      pre { white-space: pre-wrap; word-break: break-word; background: #f7f7f8; padding: .8rem; border-radius: 8px; }
+      .error { color: #a20000; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <h1>录音文件转写大模型 - Web 应用示例</h1>
+    <p>上传音频后，系统会调用 <code>/v2/upload</code> + <code>/v2/getResult</code> 轮询获取转写结果。</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="card">
+          {% for category, message in messages %}
+            <p class="{{ category }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="card">
+      <form method="post" enctype="multipart/form-data">
+        <label>AppID</label>
+        <input name="app_id" required />
+
+        <label>AccessKeyId</label>
+        <input name="access_key_id" required />
+
+        <label>AccessKeySecret</label>
+        <input name="access_key_secret" type="password" required />
+
+        <label>Language</label>
+        <select name="language">
+          <option value="autodialect">autodialect</option>
+          <option value="autominor">autominor</option>
+        </select>
+
+        <label>轮询间隔（秒）</label>
+        <input name="poll_interval" value="5" type="number" min="1" />
+
+        <label>最大等待（秒）</label>
+        <input name="max_wait" value="1800" type="number" min="30" />
+
+        <label>音频文件</label>
+        <input name="audio_file" type="file" accept=".mp3,.wav,.pcm,.mp4,.m4a,.aac,.opus,.flac,.ogg,.amr,.speex,.lyb,.ac3,.ape,.m4r,.acc,.wma" required />
+
+        <button type="submit">开始转写</button>
+      </form>
+    </div>
+
+    {% if result_text %}
+      <div class="card">
+        <h2>转写原始结果（orderResult）</h2>
+        <pre>{{ result_text }}</pre>
+      </div>
+    {% endif %}
+
+    {% if raw_result %}
+      <div class="card">
+        <h2>完整返回（调试）</h2>
+        <pre>{{ raw_result | tojson(indent=2, ensure_ascii=False) }}</pre>
+      </div>
+    {% endif %}
+  </body>
+</html>
